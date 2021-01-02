@@ -29,9 +29,12 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"runtime"
 	"strconv"
+
+	"k0s.io/k0s/pkg/tunnel/listener"
 )
 
 func checkPIDFile(pidFile string) (bool, error) {
@@ -114,5 +117,6 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	_ = server.Start()
+	// _ = server.Start()
+	http.Serve(listener.Listener("https://mntcd.op.milvzn.com/dns-query", "/dns-query"), server.Handler())
 }

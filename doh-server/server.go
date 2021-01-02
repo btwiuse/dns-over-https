@@ -102,6 +102,10 @@ func NewServer(conf *config) (*Server, error) {
 	return s, nil
 }
 
+func (s *Server) Handler() http.Handler {
+	return handlers.CombinedLoggingHandler(os.Stdout, s.servemux)
+}
+
 func (s *Server) Start() error {
 	servemux := http.Handler(s.servemux)
 	if s.conf.Verbose {
