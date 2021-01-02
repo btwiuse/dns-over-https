@@ -103,38 +103,11 @@ func NewServer(conf *config) (*Server, error) {
 }
 
 func (s *Server) Handler() http.Handler {
-	return handlers.CombinedLoggingHandler(os.Stdout, s.servemux)
-}
-
-func (s *Server) Start() error {
 	servemux := http.Handler(s.servemux)
 	if s.conf.Verbose {
 		servemux = handlers.CombinedLoggingHandler(os.Stdout, servemux)
 	}
-	results := make(chan error, len(s.conf.Listen))
-	for _, addr := range s.conf.Listen {
-		go func(addr string) {
-			var err error
-			if s.conf.Cert != "" || s.conf.Key != "" {
-				err = http.ListenAndServeTLS(addr, s.conf.Cert, s.conf.Key, servemux)
-			} else {
-				err = http.ListenAndServe(addr, servemux)
-			}
-			if err != nil {
-				log.Println(err)
-			}
-			results <- err
-		}(addr)
-	}
-	// wait for all handlers
-	for i := 0; i < cap(results); i++ {
-		err := <-results
-		if err != nil {
-			return err
-		}
-	}
-	close(results)
-	return nil
+	return servemux
 }
 
 func (s *Server) handlerFunc(w http.ResponseWriter, r *http.Request) {
