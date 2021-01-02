@@ -24,27 +24,14 @@
 package main
 
 import (
-	"flag"
 	"log"
-	"net/http"
-
-	"k0s.io/k0s/pkg/tunnel/listener"
+	"os"
 )
 
 func main() {
-	confPath := flag.String("conf", "doh-server.conf", "Configuration file")
-
-	flag.Parse()
-
-	conf, err := loadConfig(*confPath)
+	args := os.Args[1:]
+	err := Run(args)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	server, err := NewServer(conf)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	// _ = server.Start()
-	http.Serve(listener.Listener("https://mntcd.op.milvzn.com/dns-query", "/dns-query"), server.Handler())
 }

@@ -30,11 +30,25 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
+const exampleConfig = `
+remote_addr = "https://mntcd.op.milvzn.com/dns-query"
+path = "/dns-query"
+upstream = [
+    "udp:1.1.1.1:53",
+    "udp:1.0.0.1:53",
+    "udp:8.8.8.8:53",
+    "udp:8.8.4.4:53",
+]
+timeout = 10
+tries = 3
+verbose = true
+log_guessed_client_ip = true
+ecs_allow_non_global_ip = false
+ecs_use_precise_ip = false
+`
+
 type config struct {
-	Listen           []string `toml:"listen"`
-	LocalAddr        string   `toml:"local_addr"`
-	Cert             string   `toml:"cert"`
-	Key              string   `toml:"key"`
+	RemoteAddr       string   `toml:"remote_addr"`
 	Path             string   `toml:"path"`
 	Upstream         []string `toml:"upstream"`
 	Timeout          uint     `toml:"timeout"`
@@ -56,10 +70,6 @@ func loadConfig(path string) (*config, error) {
 		return nil, &configError{fmt.Sprintf("unknown option %q", key.String())}
 	}
 
-	if len(conf.Listen) == 0 {
-		conf.Listen = []string{"127.0.0.1:8053", "[::1]:8053"}
-	}
-
 	if conf.Path == "" {
 		conf.Path = "/dns-query"
 	}
@@ -71,10 +81,6 @@ func loadConfig(path string) (*config, error) {
 	}
 	if conf.Tries == 0 {
 		conf.Tries = 1
-	}
-
-	if (conf.Cert != "") != (conf.Key != "") {
-		return nil, &configError{"You must specify both -cert and -key to enable TLS"}
 	}
 
 	// validate all upstreams

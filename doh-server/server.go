@@ -30,11 +30,9 @@ import (
 	"math/rand"
 	"net"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
-	"github.com/gorilla/handlers"
 	jsondns "github.com/m13253/dns-over-https/json-dns"
 	"github.com/miekg/dns"
 )
@@ -76,38 +74,12 @@ func NewServer(conf *config) (*Server, error) {
 		},
 		servemux: http.NewServeMux(),
 	}
-	if conf.LocalAddr != "" {
-		udpLocalAddr, err := net.ResolveUDPAddr("udp", conf.LocalAddr)
-		if err != nil {
-			return nil, err
-		}
-		tcpLocalAddr, err := net.ResolveTCPAddr("tcp", conf.LocalAddr)
-		if err != nil {
-			return nil, err
-		}
-		s.udpClient.Dialer = &net.Dialer{
-			Timeout:   timeout,
-			LocalAddr: udpLocalAddr,
-		}
-		s.tcpClient.Dialer = &net.Dialer{
-			Timeout:   timeout,
-			LocalAddr: tcpLocalAddr,
-		}
-		s.tcpClientTLS.Dialer = &net.Dialer{
-			Timeout:   timeout,
-			LocalAddr: tcpLocalAddr,
-		}
-	}
 	s.servemux.HandleFunc(conf.Path, s.handlerFunc)
 	return s, nil
 }
 
 func (s *Server) Handler() http.Handler {
-	servemux := http.Handler(s.servemux)
-	if s.conf.Verbose {
-		servemux = handlers.CombinedLoggingHandler(os.Stdout, servemux)
-	}
-	return servemux
+	return s.servemux
 }
 
 func (s *Server) handlerFunc(w http.ResponseWriter, r *http.Request) {
