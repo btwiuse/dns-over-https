@@ -21,7 +21,7 @@
    DEALINGS IN THE SOFTWARE.
 */
 
-package main
+package dohserver
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ import (
 )
 
 const exampleConfig = `
-remote_addr = "https://mntcd.op.milvzn.com/dns-query"
+remote_addr = "https://chassis.com/dns-query"
 path = "/dns-query"
 upstream = [
     "udp:1.1.1.1:53",

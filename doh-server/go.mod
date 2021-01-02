@@ -1,4 +1,4 @@
-module doh-server
+module dohserver
 
 go 1.15
 

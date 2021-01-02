@@ -21,7 +21,7 @@
    DEALINGS IN THE SOFTWARE.
 */
 
-package main
+package dohserver
 
 const (
 	VERSION    = "2.2.5"
